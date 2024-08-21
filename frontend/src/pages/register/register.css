@@ -1,0 +1,52 @@
+.registerDiv {
+  background-color: lightslategray;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.registerDiv h1 {
+  color: burlywood;
+  margin-bottom: 3%;
+}
+
+.regInputarea {
+  height: 80%;
+  width: 80%;
+  gap: 8%;
+  background-color: lightskyblue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+.regInputarea input {
+  width: 70%;
+  color: rgb(86, 81, 75);
+  height: 8%;
+  cursor: pointer;
+}
+
+.regInputarea button {
+  color: whitesmoke;
+  font-weight: bolder;
+  background-color: rgb(2, 71, 2);
+  width: 60%;
+  height: 8%;
+  cursor: pointer;
+}
+
+.regInputarea button:hover {
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  cursor: pointer;
+}
