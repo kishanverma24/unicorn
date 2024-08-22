@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { UserRouter } from "./routes/userRoute.js";
 import { MessageRouter } from "./routes/messageRoute.js";
 import { ChatHistoryRouter } from "./routes/chatHistoryRoute.js";
+import "./db.js";
 const app = express();
 dotenv.config();
 app.use(cors());

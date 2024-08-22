@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./register.css";
 
 const Register = () => {
@@ -15,19 +16,27 @@ const Register = () => {
   }, [navigate]);
 
   const handleRegister = async () => {
-    if (userName && password && email) {
-      const data = await axios.post("", {
-        userName,
-        email,
-        password,
-      });
+    if (userName && password) {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/user/register",
+        {
+          username: userName,
+          password,
+          email,
+        }
+      );
       if (data.status === false) {
-        alert("Email or username already exist");
+        console.log(data);
+        console.log("Error while logging in");
+        navigate("/register");
       }
       if (data.status === true) {
         localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        localStorage.setItem("token", JSON.stringify(data.token));
         navigate("/");
       }
+    } else {
+      console.error("Name, Password, and Email can't be empty");
     }
   };
 
@@ -70,7 +79,7 @@ const Register = () => {
               Login
             </Link>
           </span>
-          <button onClick={handleRegister}>Login</button>
+          <button onClick={handleRegister}>Register</button>
         </div>
       </div>
     </>

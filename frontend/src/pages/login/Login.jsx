@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./login.css";
 const Login = () => {
   const navigate = useNavigate();
@@ -12,13 +13,29 @@ const Login = () => {
     }
   }, [navigate]);
 
-  const handleRegister = () => {
-    if (userName && password && email) {
-      localStorage.setItem("current-user_name", JSON.stringify(userName));
-      localStorage.setItem("current-user_id", JSON.stringify(password));
-      navigate("/");
+  const handleLogin = async () => {
+    if (userName && password) {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/user/login",
+        {
+          username: userName,
+          password,
+        }
+      );
+      if (data.status === false) {
+        console.log(data);
+
+        console.log("Error while logging in");
+
+        navigate("/login");
+      }
+      if (data.status === true) {
+        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        localStorage.setItem("token", JSON.stringify(data.token));
+        navigate("/");
+      }
     } else {
-      console.error("Name,Password and Email cannot be empty");
+      console.error("Name and Password can't be empty");
     }
   };
 
@@ -55,7 +72,7 @@ const Login = () => {
               Login
             </Link>
           </span>
-          <button onClick={handleRegister}>Login</button>
+          <button onClick={handleLogin}>Login</button>
         </div>
       </div>
     </>
