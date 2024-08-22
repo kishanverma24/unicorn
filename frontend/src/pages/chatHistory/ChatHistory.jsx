@@ -3,7 +3,24 @@ import Header from "../../components/header/Header";
 import { Link } from "react-router-dom";
 
 const ChatHistory = () => {
+  const handleChatHistory= async() =>{
+    const response = await fetch("http://localhost:5000/api/user/register", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        // Your request body data
+        username: userName,
+        password,
+        email,
+      }),
+    });
+    const data = await response.json();
+  }
   return (
+    
     <>
       <Header />
       <div

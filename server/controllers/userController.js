@@ -17,18 +17,21 @@ export const login = async (req, res, next) => {
     const userObject = user.toObject();
     delete userObject.password;
     const accessToken = jwt.sign(userObject, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+      expiresIn: "1h",
     });
-    // const options = {
-    //   httpOnly: true,
-    //   secure: true,
-    // };
-    return res.status(201).json({
-      status: true,
-      user: userObject,
-      token: accessToken,
-    });
-    // .cookie("accessToken", accessToken, options);
+
+    return res
+      .cookie("token", accessToken, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: "Strict",
+      })
+      .status(200)
+      .json({
+        status: true,
+        user: userObject,
+        token: accessToken,
+      });
   } catch (ex) {
     next(ex);
   }
@@ -59,19 +62,32 @@ export const register = async (req, res, next) => {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     });
 
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
+    // const options = {
+    //   httpOnly: true,
+    //   secure: true,
+    // };
 
     return res
+      .cookie("token", accessToken, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: "Strict",
+      })
+      .status(200)
       .json({
         status: true,
         user: userObject,
         token: accessToken,
-      })
-      .cookie("accessToken", accessToken, options)
-      .status(201);
+      });
+
+    // return res
+    //   .json({
+    //     status: true,
+    //     user: userObject,
+    //     token: accessToken,
+    //   })
+    //   .cookie("accessToken", accessToken, options)
+    //   .status(201);
   } catch (ex) {
     next(ex);
   }
