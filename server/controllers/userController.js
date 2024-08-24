@@ -100,7 +100,7 @@ export const getAllUsers = async (req, res, next) => {
       "username",
       "_id",
     ]);
-    return res.json(users);
+    return res.json({ users, success: true });
   } catch (ex) {
     next(ex);
   }

@@ -46,7 +46,7 @@ const ChatHistory = () => {
         >
           {chatHistory.chats?.map((chat) => (
             <Link
-              to={`/chat/${chat.userName}`}
+              to={`/chat/${chat.userName}/${chat._id}`}
               style={{ textDecoration: "none", color: "black" }}
               key={chat._id} // using _id as key
             >

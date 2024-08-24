@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useUserProvider } from "../../context/UserContextProvider";
+import Header from "../../components/header/Header";
 
 function Chat() {
   const navigate = useNavigate();
-  const [yourName, setYourName] = useState("");
-  const [yourId, setYourId] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [toSendingId, setToSendingId] = useState("");
-  const [msg, setMsg] = useState("");
-  const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [user, setUser] = useUserProvider();
+  const { recipientid, recipientusername } = useParams();
+  const [messages, setMessages] = useState([]); // all the messages which are sended and received
+  const [recipientId, setRecipientId] = useState(""); // the person from whom the messages are sended/received
+  const [msg, setMsg] = useState(""); // the message which we wants to send
+  const [arrivalMessage, setArrivalMessage] = useState(null); // the message which have arrived through socket connection
+  const [user] = useUserProvider(); // current logged in user
 
   const socket = useRef();
 
   useEffect(() => {
+    // to check user is logged in or not
     const checkUser = () => {
       if (!user) {
         console.log("User not found!");
@@ -25,26 +26,15 @@ function Chat() {
       }
     };
     checkUser();
-  }, [navigate]);
+  }, [user, navigate]);
+  useEffect(() => {
+    setRecipientId(recipientid);
+  }, [recipientid, recipientusername]);
 
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userName = user.username;
-        const userId = user._id;
-        setYourName(userName || "");
-        setYourId(userId || "");
-      } catch (error) {
-        console.error("Error loading user data", error);
-      }
-    };
-    loadUserData();
-  }, []);
-
-  useEffect(() => {
-    if (yourName && yourId) {
+    if (user) {
       socket.current = io("http://localhost:5000");
-      socket.current.emit("add-user", yourId);
+      socket.current.emit("add-user", user._id);
 
       socket.current.on("msg-receive", (msg) => {
         setArrivalMessage({ fromSelf: false, message: msg, id: Date.now() });
@@ -54,7 +44,7 @@ function Chat() {
         socket.current.disconnect();
       };
     }
-  }, [yourName, yourId]);
+  }, [user._id, user.username]);
 
   useEffect(() => {
     if (arrivalMessage) {
@@ -62,52 +52,50 @@ function Chat() {
     }
   }, [arrivalMessage]);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
-  };
-
   const handleSendMsg = () => {
-    if (socket.current && toSendingId && msg) {
+    if (socket.current && recipientId && msg) {
       const messageObject = {
         fromSelf: true,
         message: msg,
         id: Date.now(),
       };
       socket.current.emit("send-msg", {
-        from: yourId,
-        to: toSendingId,
+        from: user._id,
+        to: recipientId,
         msg,
       });
       setMessages((prev) => [...prev, messageObject]);
       setMsg(""); // Clear message input after sending
     } else {
-      console.error("Message or recipient ID cannot be empty");
+      alert("Message can't be empty");
     }
   };
 
   return (
     <>
+      <Header />
       <div
         className="user-info"
         style={{
           display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
-          boxShadow: "0 -1px 5px rgba(0,0,0,0.5)",
+          boxShadow: "0 -5px 5px rgba(0,0,0,0.5)",
           backgroundColor: "lightcyan",
           borderRadius: "10px",
+          marginTop: "1vh",
+          marginBottom: "1vh",
+          marginRight: "1vw",
+          marginLeft: "1vw",
         }}
       >
-        <h3>Your Username: {yourName}</h3>
-        <h3>Your User Id: {yourId}</h3>
-        <button onClick={handleLogout}>Logout</button>
+        <h3>To : {recipientusername}</h3>
+        {/* <h3>Your User Id: {recipientid}</h3> */}
       </div>
       <div
         className="messages"
         style={{
-          marginTop: "200px",
-          padding: "10px",
+          padding: "2vw",
           display: "flex",
           flexDirection: "column",
         }}
@@ -117,11 +105,11 @@ function Chat() {
             key={message.id}
             className="message"
             style={{
-              margin: "10px 0",
+              margin: "1vh 0",
               padding: "10px",
               borderRadius: "10px",
               backgroundColor: message.fromSelf ? "#d1e7dd" : "#f8d7da",
-              alignSelf: message.fromSelf ? "flex-end" : "flex-start",
+              alignSelf: message.fromSelf ? "flex-start" : "flex-end",
               maxWidth: "60%",
               wordWrap: "break-word",
               display: "inline-block",
@@ -137,7 +125,7 @@ function Chat() {
       <div
         className="message-input"
         style={{
-          padding: "10px",
+          padding: "1.5vh",
           borderTop: "1px solid #ccc",
           position: "fixed",
           bottom: "0",
@@ -147,25 +135,25 @@ function Chat() {
           boxShadow: "0 -2px 5px rgba(0,0,0,0.1)",
           display: "flex",
           alignItems: "center",
-          gap: "10px",
-          justifyContent: "space-evenly",
+          justifyContent: "space-between", // Adjusted to space elements as required
         }}
       >
-        <input
-          type="text"
-          value={toSendingId}
-          placeholder="Send To (User ID)"
-          onChange={(e) => setToSendingId(e.target.value)}
-          style={{ marginRight: "10px", padding: "5px", width: "20vw" }}
-        />
         <input
           type="text"
           value={msg}
           placeholder="Message"
           onChange={(e) => setMsg(e.target.value)}
-          style={{ marginRight: "10px", padding: "5px", width: "50vw" }}
+          style={{ padding: "1vw", width: "60%" }} // 60% width for input
         />
-        <button onClick={handleSendMsg} style={{ padding: "5px 10px" }}>
+        <button
+          onClick={handleSendMsg}
+          style={{
+            padding: "1vw",
+            width: "35%",
+            marginRight: "3vw",
+            cursor: "pointer",
+          }}
+        >
           Send
         </button>
       </div>
