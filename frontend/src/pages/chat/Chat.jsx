@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+import { useUserProvider } from "../../context/UserContextProvider";
 
 function Chat() {
   const navigate = useNavigate();
@@ -10,13 +11,13 @@ function Chat() {
   const [toSendingId, setToSendingId] = useState("");
   const [msg, setMsg] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [user, setUser] = useUserProvider();
 
   const socket = useRef();
 
   useEffect(() => {
     const checkUser = () => {
-      const userName = localStorage.getItem("current-user_name");
-      if (!userName) {
+      if (!user) {
         console.log("User not found!");
         navigate("/login");
       } else {
@@ -29,8 +30,8 @@ function Chat() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const userName = JSON.parse(localStorage.getItem("current-user_name"));
-        const userId = JSON.parse(localStorage.getItem("current-user_id"));
+        const userName = user.username;
+        const userId = user._id;
         setYourName(userName || "");
         setYourId(userId || "");
       } catch (error) {

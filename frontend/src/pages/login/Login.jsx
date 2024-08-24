@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
+import { useUserProvider } from "../../context/UserContextProvider";
 const Login = () => {
   const navigate = useNavigate();
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [user, setUser] = useUserProvider();
   useEffect(() => {
-    if (localStorage.getItem("current-user_name")) {
+    if (user) {
       navigate("/");
     }
   }, [navigate]);
 
   const handleLogin = async () => {
     if (userName && password) {
-      const response = await fetch("http://localhost:5000/api/user/login", 
-        {
+      const response = await fetch("http://localhost:5000/api/user/login", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -25,7 +25,6 @@ const Login = () => {
           // Your request body data
           username: userName,
           password,
-         
         }),
       });
       const data = await response.json();
@@ -38,7 +37,7 @@ const Login = () => {
         navigate("/login");
       }
       if (data.status === true) {
-        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        setUser(data.user);
         localStorage.setItem("token", JSON.stringify(data.token));
         navigate("/");
       }
@@ -68,16 +67,16 @@ const Login = () => {
             value={password}
           />
           <span style={{ fontWeight: "bold" }}>
-            Already have an account?{" "}
+            Don't have an account?{" "}
             <Link
               style={{
                 textDecoration: "none",
                 color: "rgb(22, 72, 72)",
                 fontWeight: "bold",
               }}
-              to={"/login"}
+              to={"/register"}
             >
-              Login
+              Register
             </Link>
           </span>
           <button onClick={handleLogin}>Login</button>

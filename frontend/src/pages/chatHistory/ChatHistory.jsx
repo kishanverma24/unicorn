@@ -67,7 +67,6 @@ const ChatHistory = () => {
         </div>
       </div>
       <button onClick={handleChatHistory}>ChatHistory</button>
-      <button onClick={handleCreateChatHistory}>Create ChatHistory</button>
     </>
   );
 };

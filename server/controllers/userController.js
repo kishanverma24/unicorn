@@ -110,7 +110,11 @@ export const logOut = (req, res, next) => {
   try {
     if (!req.params.id) return res.json({ msg: "User id is required " });
     onlineUsers.delete(req.params.id);
-    return res.status(200).send("Logged Out success");
+
+    return res
+      .clearCookie("token", { path: "/" })
+      .status(200)
+      .json({ msg: "Logged Out success", success: true });
   } catch (ex) {
     next(ex);
   }

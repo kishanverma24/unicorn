@@ -1,9 +1,27 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserProvider } from "../../context/UserContextProvider";
 
 const Header = () => {
-  const handleLogout = () => {
-    localStorage.clear();
+  const navigate = useNavigate();
+  const [user, setUser] = useUserProvider();
+
+  const handleLogout = async () => {
+    const response = await fetch(
+      `http://localhost:5000/api/user/logout/${user._id}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = await response.json();
+    if (data.success === true) {
+      setUser(null);
+      localStorage.clear();
+    }
   };
   return (
     <div

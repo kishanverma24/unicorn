@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../../components/header/Header";
+import { useUserProvider } from "../../context/UserContextProvider";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
-  console.log(JSON.parse(localStorage.getItem("chat-app_user")));
+  const navigate = useNavigate();
+  const [user] = useUserProvider();
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   return (
     <>

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./register.css";
+import { useUserProvider } from "../../context/UserContextProvider";
 
 const Register = () => {
   const navigate = useNavigate();
   const [userName, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [user, setUser] = useUserProvider();
 
   useEffect(() => {
-    if (localStorage.getItem("current-user_name")) {
+    if (user) {
       navigate("/");
     }
   }, [navigate]);
@@ -37,7 +39,7 @@ const Register = () => {
         navigate("/register");
       }
       if (data.status === true) {
-        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        setUser(data.user);
         localStorage.setItem("token", JSON.stringify(data.token));
         navigate("/");
       }
