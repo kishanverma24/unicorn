@@ -1,18 +1,45 @@
 import { ChatHistory } from "../models/chatHistoryModel.js"; // Adjust the path as needed
+export const getChatHistory = async (req, res) => {
+  try {
+    console.log(req.userid);
 
-export const addChatToHistory = async (chatHistoryId, newChat) => {
+    // Find the chat history document
+    const chatHistory = await ChatHistory.findOne({ user: req.userid });
+
+    if (!chatHistory) {
+      // throw new Error("Chat history not found");
+
+      return res
+        .json({ message: "Chat history not found", status: true })
+        .status(200);
+    }
+    return res.json({ chatHistory, status: true }).status(200);
+  } catch (error) {
+    console.error("Error adding chat to history:", error);
+    throw error;
+  }
+};
+export const addChatToHistory = async (req, res) => {
+  console.log(req.body);
+  const { newChat } = req.body; // username,userid
+
   // here new chat is an object which has keys named userId and userName
   try {
     // Find the chat history document
-    const chatHistory = await ChatHistory.findById(chatHistoryId);
+    const chatHistory = await ChatHistory.findOne({ user: req.userid });
 
     if (!chatHistory) {
-      throw new Error("Chat history not found");
+      // throw new Error("Chat history not found");
+      const user = await ChatHistory.create({
+        user: req.userid,
+        chats: [newChat],
+      });
+      return res.json({ user });
     }
 
     // Check if the chat already exists
     const chatExists = chatHistory.chats.some(
-      (chat) => chat.userId.toString() === newChat.userId.toString()
+      (chat) => chat.userId.toString() === newChat.userid.toString()
     );
 
     if (chatExists) {
@@ -28,7 +55,7 @@ export const addChatToHistory = async (chatHistoryId, newChat) => {
     // Save the updated chat history
     await chatHistory.save();
 
-    return chatHistory;
+    return res.json({ message: "added success", success: true });
   } catch (error) {
     console.error("Error adding chat to history:", error);
     throw error;

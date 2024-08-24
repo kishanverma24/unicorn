@@ -10,8 +10,9 @@ const chatHistorySchema = mongoose.Schema(
       //chats means to whom the current user is chatting
       {
         userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          // type: mongoose.Schema.Types.ObjectId,
+          // ref: "User",
+          type: Number,
         },
         userName: {
           type: String,
@@ -29,3 +30,35 @@ const chatHistorySchema = mongoose.Schema(
 );
 
 export const ChatHistory = mongoose.model("ChatHistory", chatHistorySchema);
+
+// ______________or___________
+// import mongoose from "mongoose";
+
+// const chatSchema = mongoose.Schema({
+//   userId: {
+//     type: Number,
+//     required: true,
+//   },
+//   userName: {
+//     type: String,
+//     required: true,
+//   }
+// });
+
+// const chatHistorySchema = mongoose.Schema({
+//   user: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "User",
+//   },
+//   chats: [chatSchema], // Array of subdocuments
+//   createdAt: {
+//     type: Date,
+//     default: Date.now,
+//   },
+//   updatedAt: {
+//     type: Date,
+//     default: Date.now,
+//   }
+// });
+
+// export const ChatHistory = mongoose.model("ChatHistory", chatHistorySchema);

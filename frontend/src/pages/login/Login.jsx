@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./login.css";
 const Login = () => {
   const navigate = useNavigate();
@@ -15,7 +14,8 @@ const Login = () => {
 
   const handleLogin = async () => {
     if (userName && password) {
-      const response = await fetch("http://localhost:5000/api/user/login", {
+      const response = await fetch("http://localhost:5000/api/user/login", 
+        {
         method: "POST",
         credentials: "include",
         headers: {
@@ -25,6 +25,7 @@ const Login = () => {
           // Your request body data
           username: userName,
           password,
+         
         }),
       });
       const data = await response.json();

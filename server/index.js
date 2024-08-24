@@ -7,6 +7,7 @@ import { MessageRouter } from "./routes/messageRoute.js";
 import { ChatHistoryRouter } from "./routes/chatHistoryRoute.js";
 import "./db.js";
 import cors from "cors";
+import { verifyUser } from "./middleware/verifyUser.js";
 
 dotenv.config();
 const app = express();
@@ -27,8 +28,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", UserRouter);
-app.use("/api/chathistory", ChatHistoryRouter);
-app.use("/api/messages", MessageRouter);
+app.use("/api/chathistory", verifyUser, ChatHistoryRouter);
+app.use("/api/messages", verifyUser, MessageRouter);
 
 const server = app.listen(5000, () => {
   console.log("Server started!");
