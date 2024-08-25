@@ -12,12 +12,12 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/chat/:recipientusername/:recipientid"
           element={<Chat />}
         />
         <Route path="/chathistory" element={<ChatHistory />} />
-        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

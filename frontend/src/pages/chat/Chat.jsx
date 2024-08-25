@@ -17,15 +17,10 @@ function Chat() {
 
   useEffect(() => {
     // to check user is logged in or not
-    const checkUser = () => {
-      if (!user) {
-        console.log("User not found!");
-        navigate("/login");
-      } else {
-        console.log("Good to go!");
-      }
-    };
-    checkUser();
+    if (!user) {
+      console.log("User not found!");
+      navigate("/login");
+    }
   }, [user, navigate]);
   useEffect(() => {
     setRecipientId(recipientid);

@@ -1,7 +1,7 @@
 import { ChatHistory } from "../models/chatHistoryModel.js"; // Adjust the path as needed
 export const getChatHistory = async (req, res) => {
   try {
-    console.log(req.userid);
+    // console.log(req.userid);
 
     // Find the chat history document
     const chatHistory = await ChatHistory.findOne({ user: req.userid });
@@ -20,7 +20,7 @@ export const getChatHistory = async (req, res) => {
   }
 };
 export const addChatToHistory = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { newChat } = req.body; // username,userid
 
   // here new chat is an object which has keys named userId and userName
@@ -63,11 +63,11 @@ export const addChatToHistory = async (req, res) => {
 };
 
 export const deleteChat = async (req, res) => {
-  const { userId, chatUserId } = req.body;
+  const {  chatUserId } = req.body;
 
   try {
     // Find the ChatHistory document for the given user
-    const chatHistory = await ChatHistory.findOne({ user: userId });
+    const chatHistory = await ChatHistory.findOne({ user: req.userid });
 
     if (!chatHistory) {
       return res
@@ -84,7 +84,7 @@ export const deleteChat = async (req, res) => {
     chatHistory.chats = updatedChats;
     await chatHistory.save();
 
-    return res.status(200).json({ message: "Chat deleted successfully." });
+    return res.status(200).json({ message: "Chat deleted successfully.",success:"true" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error." });

@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/header/Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserProvider } from "../../context/UserContextProvider";
 
 const ChatHistory = () => {
   const [chatHistory, setChatHistory] = useState([]);
+  const [user] = useUserProvider();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const handleChatHistory = async () => {
     const response = await fetch(
@@ -19,6 +27,39 @@ const ChatHistory = () => {
     const data = await response.json();
     setChatHistory(data.chatHistory);
     console.log(data);
+  };
+
+  useEffect(() => {
+    handleChatHistory();
+  }, [user, navigate]);
+
+  const handleDeleteChat = async (chat) => {
+    let result = confirm("Press Ok to delete the message!");
+    // console.log(chat, result);
+    if (result == true) {
+      const response = await fetch(
+        "http://localhost:5000/api/chathistory/deletechat",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // Your request body data
+
+            chatUserId: chat.userId,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+
+      alert(`${data.message}`);
+      navigate("/chathistory");
+    } else {
+      navigate("/chathistory");
+    }
   };
 
   return (
@@ -44,29 +85,56 @@ const ChatHistory = () => {
             cursor: "pointer",
           }}
         >
-          {chatHistory.chats?.map((chat) => (
-            <Link
-              to={`/chat/${chat.userName}/${chat._id}`}
-              style={{ textDecoration: "none", color: "black" }}
+          {chatHistory?.chats?.map((chat) => (
+            <div
+              style={{
+                width: "80vw",
+                height: "5vh",
+                display: "flex",
+              }}
               key={chat._id} // using _id as key
             >
-              <h6
+              <Link
+                to={`/chat/${chat.userName}/${chat._id}`}
+                style={{ textDecoration: "none", color: "black" }}
+                // key={chat._id} // using _id as key
+              >
+                <h6
+                  style={{
+                    alignContent: "center",
+                    padding: "0.5vh",
+                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                    fontSize: "3vh",
+                    marginTop: "1vh",
+                    height: "5vh",
+                  }}
+                >
+                  {chat.userName}
+                </h6>
+              </Link>
+              <button
                 style={{
                   alignContent: "center",
                   padding: "0.5vh",
-                  height: "5vh",
-                  width: "80%",
-                  boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                   fontSize: "3vh",
+                  marginTop: "1vh",
+                  height: "6vh",
+                  borderRadius: "none",
+                  border: "none",
+                  backgroundColor: "rgb(21, 52, 72)",
+                  color: "rgb(21, 52, 72)",
+                  cursor: "pointer",
+                }}
+                onClick={(e) => {
+                  handleDeleteChat(chat);
                 }}
               >
-                {chat.userName}
-              </h6>
-            </Link>
+                hii
+              </button>
+            </div>
           ))}
         </div>
       </div>
-      <button onClick={handleChatHistory}>ChatHistory</button>
     </>
   );
 };
