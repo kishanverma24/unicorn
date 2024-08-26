@@ -1,45 +1,43 @@
-import React, { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUserProvider } from "../../context/UserContextProvider";
 import Header from "../../components/header/Header";
+import { useSocketProvider } from "../../context/SocketContextProvider";
 
 function Chat() {
   const navigate = useNavigate();
   const { recipientid, recipientusername } = useParams();
-  const [messages, setMessages] = useState([]); // all the messages which are sended and received
-  const [recipientId, setRecipientId] = useState(""); // the person from whom the messages are sended/received
-  const [msg, setMsg] = useState(""); // the message which we wants to send
-  const [arrivalMessage, setArrivalMessage] = useState(null); // the message which have arrived through socket connection
+  const [messages, setMessages] = useState([]); // all the messages which are sent and received
+  const [recipientId, setRecipientId] = useState(""); // the person from whom the messages are sent/received
+  const [msg, setMsg] = useState(""); // the message which we want to send
+  const [arrivalMessage, setArrivalMessage] = useState(null); // the message which has arrived through socket connection
   const [user] = useUserProvider(); // current logged in user
 
-  const socket = useRef();
-
+  const socket = useSocketProvider();
   useEffect(() => {
-    // to check user is logged in or not
+    // Check if user is logged in or not
     if (!user) {
       console.log("User not found!");
       navigate("/login");
     }
   }, [user, navigate]);
+
   useEffect(() => {
     setRecipientId(recipientid);
-  }, [recipientid, recipientusername]);
+  }, [recipientid]);
 
   useEffect(() => {
-    if (user) {
-      socket.current = io("http://localhost:5000");
-      socket.current.emit("add-user", user._id);
-
-      socket.current.on("msg-receive", (msg) => {
+    if (user && socket) {
+      socket?.current?.on("msg-receive", (msg) => {
         setArrivalMessage({ fromSelf: false, message: msg, id: Date.now() });
       });
 
+      // Cleanup on component unmount
       return () => {
-        socket.current.disconnect();
+        socket.current.off("msg-receive");
       };
     }
-  }, [user._id, user.username]);
+  }, [user, socket]);
 
   useEffect(() => {
     if (arrivalMessage) {
@@ -47,13 +45,48 @@ function Chat() {
     }
   }, [arrivalMessage]);
 
-  const handleSendMsg = () => {
-    if (socket.current && recipientId && msg) {
+  const handleSendMsg = async () => {
+    if (socket && recipientId && msg) {
       const messageObject = {
         fromSelf: true,
         message: msg,
         id: Date.now(),
       };
+
+      const response = await fetch("http://localhost:5000/api/messages/add", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // Your request body data
+          from: user._id,
+          to: recipientId,
+          message: msg,
+        }),
+      });
+      const data = await response.json();
+      console.log(data);
+
+      const response2 = await fetch("http://localhost:5000/api/chathistory/addchat",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            newChat: {
+              userId: recipientId,
+              userName: recipientusername,
+            },
+          }),
+        }
+      );
+      const data2 = await response2.json();
+      console.log(data2);
+
       socket.current.emit("send-msg", {
         from: user._id,
         to: recipientId,

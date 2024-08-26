@@ -110,7 +110,6 @@ export const logOut = (req, res, next) => {
   try {
     if (!req.params.id) return res.json({ msg: "User id is required " });
     onlineUsers.delete(req.params.id);
-
     return res
       .clearCookie("token", { path: "/" })
       .status(200)

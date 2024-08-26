@@ -2,11 +2,15 @@ import React, { useEffect, useState } from "react";
 import Header from "../../components/header/Header";
 import { useUserProvider } from "../../context/UserContextProvider";
 import { useNavigate, Link } from "react-router-dom";
+import { useSocketProvider } from "../../context/SocketContextProvider";
 
 function Home() {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState([]);
   const [user] = useUserProvider();
+  const socket = useSocketProvider();
+  console.log(socket);
+  
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -16,7 +20,7 @@ function Home() {
   useEffect(() => {
     const handleVisitors = async () => {
       const response = await fetch(
-        `http://localhost:5000/api/user/allusers/${user._id}`,
+        `http://localhost:5000/api/user/allusers/${user?._id}`,
         {
           method: "GET",
           credentials: "include",
@@ -69,7 +73,7 @@ function Home() {
                     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                     fontSize: "3vh",
                     marginTop: "1vh",
-                    height:"5vh"
+                    height: "5vh",
                   }}
                 >
                   {visitor.username}

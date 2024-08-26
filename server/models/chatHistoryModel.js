@@ -10,9 +10,8 @@ const chatHistorySchema = mongoose.Schema(
       //chats means to whom the current user is chatting
       {
         userId: {
-          // type: mongoose.Schema.Types.ObjectId,
-          // ref: "User",
-          type: Number,
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
         },
         userName: {
           type: String,

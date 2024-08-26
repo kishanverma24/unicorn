@@ -39,7 +39,7 @@ export const addChatToHistory = async (req, res) => {
 
     // Check if the chat already exists
     const chatExists = chatHistory.chats.some(
-      (chat) => chat.userId.toString() === newChat.userid.toString()
+      (chat) => chat.userId.toString() === newChat.userId.toString()
     );
 
     if (chatExists) {
@@ -63,7 +63,7 @@ export const addChatToHistory = async (req, res) => {
 };
 
 export const deleteChat = async (req, res) => {
-  const {  chatUserId } = req.body;
+  const { chatUserId } = req.body;
 
   try {
     // Find the ChatHistory document for the given user
@@ -84,7 +84,9 @@ export const deleteChat = async (req, res) => {
     chatHistory.chats = updatedChats;
     await chatHistory.save();
 
-    return res.status(200).json({ message: "Chat deleted successfully.",success:"true" });
+    return res
+      .status(200)
+      .json({ message: "Chat deleted successfully.", success: "true" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error." });

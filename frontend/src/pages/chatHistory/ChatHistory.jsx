@@ -26,7 +26,7 @@ const ChatHistory = () => {
     );
     const data = await response.json();
     setChatHistory(data.chatHistory);
-    console.log(data);
+    // console.log(data);
   };
 
   useEffect(() => {
