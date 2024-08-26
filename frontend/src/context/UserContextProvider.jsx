@@ -9,7 +9,11 @@ export const UserContextProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(user));
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
   }, [user]);
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -19,6 +23,5 @@ export const UserContextProvider = ({ children }) => {
 };
 
 export const useUserProvider = () => {
-  const { user, setUser } = useContext(UserContext);
-  return [user, setUser];
+  return useContext(UserContext);
 };

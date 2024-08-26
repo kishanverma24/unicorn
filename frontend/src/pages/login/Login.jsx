@@ -6,7 +6,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useUserProvider();
+  const {user, setUser} = useUserProvider();
   useEffect(() => {
     if (user) {
       navigate("/");

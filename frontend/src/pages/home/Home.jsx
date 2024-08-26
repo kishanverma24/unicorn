@@ -7,10 +7,9 @@ import { useSocketProvider } from "../../context/SocketContextProvider";
 function Home() {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState([]);
-  const [user] = useUserProvider();
+  const { user } = useUserProvider();
   const socket = useSocketProvider();
-  console.log(socket);
-  
+
   useEffect(() => {
     if (!user) {
       navigate("/login");

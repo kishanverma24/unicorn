@@ -3,21 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useUserProvider } from "../../context/UserContextProvider";
 import Header from "../../components/header/Header";
 import { useSocketProvider } from "../../context/SocketContextProvider";
-
+import { useMessageProvider } from "../../context/MessageContextProvider";
+import { v4 as uuidv4 } from "uuid";
 function Chat() {
   const navigate = useNavigate();
   const { recipientid, recipientusername } = useParams();
-  const [messages, setMessages] = useState([]); // all the messages which are sent and received
   const [recipientId, setRecipientId] = useState(""); // the person from whom the messages are sent/received
   const [msg, setMsg] = useState(""); // the message which we want to send
   const [arrivalMessage, setArrivalMessage] = useState(null); // the message which has arrived through socket connection
-  const [user] = useUserProvider(); // current logged in user
-
+  const { user } = useUserProvider(); // current logged in user
   const socket = useSocketProvider();
+  const [chats, addChat] = useMessageProvider();
+  console.log(chats);
+
   useEffect(() => {
-    // Check if user is logged in or not
     if (!user) {
-      console.log("User not found!");
       navigate("/login");
     }
   }, [user, navigate]);
@@ -28,11 +28,14 @@ function Chat() {
 
   useEffect(() => {
     if (user && socket) {
-      socket?.current?.on("msg-receive", (msg) => {
-        setArrivalMessage({ fromSelf: false, message: msg, id: Date.now() });
+      socket?.current?.on("msg-receive", (data) => {
+        setArrivalMessage({
+          fromSelf: false,
+          message: data.msg,
+          from: data.from,
+        });
       });
 
-      // Cleanup on component unmount
       return () => {
         socket.current.off("msg-receive");
       };
@@ -41,7 +44,8 @@ function Chat() {
 
   useEffect(() => {
     if (arrivalMessage) {
-      setMessages((prev) => [...prev, arrivalMessage]);
+      // setMessages((prev) => [...prev, arrivalMessage]);
+      addChat(recipientid, arrivalMessage);
     }
   }, [arrivalMessage]);
 
@@ -50,8 +54,9 @@ function Chat() {
       const messageObject = {
         fromSelf: true,
         message: msg,
-        id: Date.now(),
       };
+
+      addChat(recipientid, messageObject);
 
       const response = await fetch("http://localhost:5000/api/messages/add", {
         method: "POST",
@@ -60,16 +65,14 @@ function Chat() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // Your request body data
           from: user._id,
           to: recipientId,
           message: msg,
         }),
       });
-      const data = await response.json();
-      console.log(data);
 
-      const response2 = await fetch("http://localhost:5000/api/chathistory/addchat",
+      const response2 = await fetch(
+        "http://localhost:5000/api/chathistory/addchat",
         {
           method: "POST",
           credentials: "include",
@@ -84,16 +87,13 @@ function Chat() {
           }),
         }
       );
-      const data2 = await response2.json();
-      console.log(data2);
 
       socket.current.emit("send-msg", {
         from: user._id,
         to: recipientId,
         msg,
       });
-      setMessages((prev) => [...prev, messageObject]);
-      setMsg(""); // Clear message input after sending
+      setMsg("");
     } else {
       alert("Message can't be empty");
     }
@@ -118,7 +118,7 @@ function Chat() {
         }}
       >
         <h3>To : {recipientusername}</h3>
-        {/* <h3>Your User Id: {recipientid}</h3> */}
+        <h3>You : {user?.username}</h3>
       </div>
       <div
         className="messages"
@@ -128,9 +128,9 @@ function Chat() {
           flexDirection: "column",
         }}
       >
-        {messages.map((message) => (
+        {chats.get(recipientid)?.map((message) => (
           <div
-            key={message.id}
+            key={uuidv4()}
             className="message"
             style={{
               margin: "1vh 0",
@@ -163,7 +163,7 @@ function Chat() {
           boxShadow: "0 -2px 5px rgba(0,0,0,0.1)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between", // Adjusted to space elements as required
+          justifyContent: "space-between",
         }}
       >
         <input
@@ -171,7 +171,7 @@ function Chat() {
           value={msg}
           placeholder="Message"
           onChange={(e) => setMsg(e.target.value)}
-          style={{ padding: "1vw", width: "60%" }} // 60% width for input
+          style={{ padding: "1vw", width: "60%" }}
         />
         <button
           onClick={handleSendMsg}

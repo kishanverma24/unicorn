@@ -4,7 +4,7 @@ import { useUserProvider } from "../../context/UserContextProvider";
 
 const Header = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useUserProvider();
+  const { user, setUser } = useUserProvider();
 
   const handleLogout = async () => {
     const response = await fetch(
